@@ -1,0 +1,9 @@
+@for (pokemon of pokemons; track $index){
+<app-pokemon-detail 
+    [pokemon]="pokemon.name" 
+    [imagen]="pokemon.src" 
+    [habilities]="pokemon.habilities"
+    (clickName)="clickName($event)" />
+}
+<!-- <app-pokemon-detail [pokemon]="'pikachu'" [imagen]="'https://img.pokemondb.net/artwork/large/pikachu.jpg'"
+    (clickName)="clickName($event)" /> -->
