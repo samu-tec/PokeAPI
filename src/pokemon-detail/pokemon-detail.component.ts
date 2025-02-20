@@ -1,13 +1,12 @@
 // import { LowerCasePipe, UpperCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { /* ChangeDetectionStrategy, */ Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
   selector: 'app-pokemon-detail',
-  // imports: [LowerCasePipe, UpperCasePipe],
-  imports: [],
+  imports: [/* LowerCasePipe, UpperCasePipe */],
   templateUrl: './pokemon-detail.component.html',
   styleUrl: './pokemon-detail.component.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  // changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PokemonDetailComponent {
   // pokemon = "Pikachu";
