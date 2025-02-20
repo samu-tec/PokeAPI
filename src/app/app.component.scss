@@ -5,4 +5,9 @@
 
 img {
     margin-bottom: 30px;
+    transition: transform 0.5s ease-in-out;
+}
+
+img:hover {
+    transform: scale(1.1);
 }
