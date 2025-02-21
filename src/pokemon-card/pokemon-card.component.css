@@ -2,9 +2,14 @@
   display: inline-block;
 }
 
+img {
+  max-width: 200px;
+  max-height: 250px;
+}
+
 .card {
-  width: 200px;
-  height: 260px;
+  width: 240px;
+  height: 300px;
   margin: 15px;
   perspective: 1000px;
   perspective-origin: center center;
