@@ -1,17 +1,20 @@
-import { /* ChangeDetectionStrategy, */ Component, inject } from '@angular/core';
-import { PokemonDetailComponent } from '../pokemon-detail/pokemon-detail.component';
+import {
+  /* ChangeDetectionStrategy, */ Component,
+  inject,
+} from '@angular/core';
+import { PokemonCardComponent } from '../pokemon-card/pokemon-card.component';
 import { PokemonServiceService } from '../pokemon-service.service';
 import { PaginatorComponent } from '../paginator/paginator.component';
+import { Router } from '@angular/router';
 // import { JsonPipe } from '@angular/common';
 
 @Component({
   selector: 'app-pokemon-list',
-  imports: [PokemonDetailComponent, PaginatorComponent/* JsonPipe */],
+  imports: [PokemonCardComponent, PaginatorComponent /* JsonPipe */],
   templateUrl: './pokemon-list.component.html',
   styleUrl: './pokemon-list.component.scss',
   // changeDetection: ChangeDetectionStrategy.OnPush,
 })
-
 export class PokemonListComponent {
   /*   public pokemons = [
       { name: 'Pikachu', src: 'https://img.pokemondb.net/artwork/large/pikachu.jpg', habilities: ['Electric', 'Thunder'] },
@@ -23,17 +26,22 @@ export class PokemonListComponent {
   // TODO: Cambiar el tipo de la variable pokemons a any[]
   public pokemons: any[] = [];
 
+  pages?: any; // ? significa que es opcional y ! significa que no es null
+
   private pokemonService = inject(PokemonServiceService);
+
+  private router = inject(Router);
 
   constructor() {
     this.pokemonService.getPokemonList().subscribe((data) => {
       this.pokemons = data.results;
+      this.pages = { next: data.next, previous: data.previous };
       // console.log('data', data.results);
     });
   }
 
-  clickName(frase: string) {
-    console.log(frase);
+  clickName(pokemon: string) {
+    this.router.navigate(['/pokemon/', pokemon]);
   }
 
   capitalizeFirstLetter(name: string): string {
@@ -41,11 +49,22 @@ export class PokemonListComponent {
   }
 
   nextPage() {
-    console.log('Siguiente página');
+    // console.log('Siguiente página');
+    if (this.pages.next) {
+      this.pokemonService.changePage(this.pages.next).subscribe((data) => {
+        this.pokemons = data.results;
+        this.pages = { next: data.next, previous: data.previous };
+      });
+    }
   }
 
   prevPage() {
-    console.log('Página anterior');
+    // console.log('Página anterior');
+    if (this.pages.previous) {
+      this.pokemonService.changePage(this.pages.previous).subscribe((data) => {
+        this.pokemons = data.results;
+        this.pages = { next: data.next, previous: data.previous };
+      });
+    }
   }
-  
 }
