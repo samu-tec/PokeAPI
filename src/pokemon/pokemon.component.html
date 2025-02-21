@@ -1,0 +1,8 @@
+@if(pokemon){
+<pre>
+    {{ pokemon.sprites.front_default | json }}
+</pre>
+
+<img [src]="pokemon.sprites.front_default" alt="pokemon" />
+
+} @else { Cargando... }
