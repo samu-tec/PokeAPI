@@ -1,14 +1,18 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-// import { PokemonCardComponent } from '../pokemon-card/pokemon-card.component';
-// import { PokemonListComponent } from '../pokemon-list/pokemon-list.component';
+import { Component, Input } from '@angular/core';
+import { Router, RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, /* PokemonCardComponent, PokemonListComponent */],
+  imports: [RouterOutlet],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  styleUrl: './app.component.scss',
 })
 export class AppComponent {
-  // title = 'PokeAPI';
+  @Input() title = '';
+
+  constructor(private router: Router) {}
+
+  onLogoClick() {
+    this.router.navigate(['/']);
+  }
 }
