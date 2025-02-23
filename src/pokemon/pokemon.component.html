@@ -1,12 +1,20 @@
 @if(loading){
 <app-loader />
 } @else {
-<div class="pokemon">
+<div class="pokemonInfo">
   <h2>{{ pokemonName + " #" + pokemon.id }}</h2>
-  <img [src]="pokemon.sprites.front_default" alt="pokemon" />
+  <div id="pokeball">
+    <div
+      class="pokemonImg"
+      [style.background-image]="'url(' + pokemon.sprites.front_default + ')'"
+    ></div>
+    <div class="semicirculo-rojo"></div>
+    <div class="semicirculo-blanco"></div>
+    <div class="borde-negro"></div>
+    <div class="circulo-central"></div>
+  </div>
 
   <p>Experience: {{ pokemon.base_experience }}</p>
-
   <p>Height: {{ pokemon.height }} | Weight: {{ pokemon.weight }}</p>
 
   <h2>Type:</h2>
