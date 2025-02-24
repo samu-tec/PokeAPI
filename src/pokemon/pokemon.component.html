@@ -4,10 +4,11 @@
 <div class="pokemonInfo">
   <h2>{{ pokemonName + " #" + pokemon.id }}</h2>
   <div id="pokeball">
-    <div
+    <img
       class="pokemonImg"
-      [style.background-image]="'url(' + pokemon.sprites.front_default + ')'"
-    ></div>
+      [src]="pokemon.sprites.front_default"
+      alt="{{ pokemonName }}"
+    />
     <div class="semicirculo-rojo"></div>
     <div class="semicirculo-blanco"></div>
     <div class="borde-negro"></div>
