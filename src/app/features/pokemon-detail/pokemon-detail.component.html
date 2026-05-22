@@ -1,0 +1,74 @@
+@if (loading) {
+  <app-loader />
+} @else {
+  <div class="pokemonInfo">
+    <h2 class="pokemon-title">{{ pokemonName | capitalize }} <span class="pokemon-id">#{{ pokemon!.id }}</span></h2>
+
+    <div class="pokeball-wrapper">
+      <div id="pokeball" [class.open]="pokeballOpen">
+        <img
+          class="pokemonImg"
+          [src]="pokemon!.sprites.front_default"
+          [alt]="pokemonName ?? ''"
+        />
+        <div class="semicirculo-rojo"></div>
+        <div class="semicirculo-blanco"></div>
+        <div class="borde-negro"></div>
+        <div class="circulo-central"></div>
+      </div>
+    </div>
+
+    <div class="type-row">
+      @for (type of pokemon!.types; track type.type.name) {
+        <span class="type-badge" [style.background-color]="getTypeColor(type.type.name)">
+          {{ type.type.name | capitalize }}
+        </span>
+      }
+    </div>
+
+    <div class="info-grid">
+      <div class="info-cell">
+        <span class="info-label">Height</span>
+        <span class="info-value">{{ formatHeight(pokemon!.height) }}</span>
+      </div>
+      <div class="info-cell">
+        <span class="info-label">Weight</span>
+        <span class="info-value">{{ formatWeight(pokemon!.weight) }}</span>
+      </div>
+      @if (pokemon!.base_experience) {
+        <div class="info-cell">
+          <span class="info-label">Base EXP</span>
+          <span class="info-value">{{ pokemon!.base_experience }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">Abilities</h3>
+      <div class="ability-row">
+        @for (ability of pokemon!.abilities; track ability.ability.name) {
+          <span class="ability-badge">{{ ability.ability.name | capitalize }}</span>
+        }
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">Base Stats</h3>
+      @for (stat of pokemon!.stats; track stat.stat.name) {
+        <div class="stat-row">
+          <span class="stat-label">{{ getStatLabel(stat.stat.name) }}</span>
+          <span class="stat-value">{{ stat.base_stat }}</span>
+          <div class="stat-bar-bg">
+            <div
+              class="stat-bar-fill"
+              [style.width.%]="(stat.base_stat / 255) * 100"
+              [style.background-color]="getStatColor(stat.base_stat)"
+            ></div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <button class="btn-back" (click)="goBack()">← Back</button>
+  </div>
+}

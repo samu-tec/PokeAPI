@@ -4,25 +4,26 @@ export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'pokemon-list',
+    redirectTo: 'pokemons',
   },
   {
-    path: 'pokemon-list',
+    path: 'pokemons',
     loadComponent: () =>
-      import('../pokemon-list/pokemon-list.component').then(
+      import('./features/pokemon-list/pokemon-list.component').then(
         (c) => c.PokemonListComponent
       ),
   },
   {
     path: 'pokemon/:pokemonId',
     loadComponent: () =>
-      import('../pokemon/pokemon.component').then((c) => c.PokemonComponent),
+      import('./features/pokemon-detail/pokemon-detail.component').then(
+        (c) => c.PokemonDetailComponent
+      ),
   },
   {
-    // El doble asterisco (**) es un comodín que coincide con cualquier URL que no coincida con las rutas definidas anteriormente.
     path: '**',
     loadComponent: () =>
-      import('../not-found/not-found.component').then(
+      import('./not-found/not-found.component').then(
         (c) => c.NotFoundComponent
       ),
   },

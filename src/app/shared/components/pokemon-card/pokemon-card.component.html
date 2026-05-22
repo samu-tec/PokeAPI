@@ -1,11 +1,11 @@
-<div class="card">
-  <div class="card-inner">
+<div class="card" (click)="onCardClick()">
+  <div class="card-inner" [class.flipped]="isFlipped">
     <div class="card-front">
       <img [src]="imagen" [alt]="'imagen de ' + pokemon" />
     </div>
     <div class="card-back">
       <h1>{{ pokemon }}</h1>
-      <button (click)="clickName.emit(pokemon)">
+      <button (click)="$event.stopPropagation(); clickName.emit(pokemon)">
         <span class="span-mother">
           <span>+</span>
           <span>I</span>
@@ -14,16 +14,13 @@
           <span>o</span>
         </span>
         <span class="span-mother2">
-          <span>P</span>
-          <span>u</span>
-          <span>l</span>
-          <span>s</span>
+          <span>T</span>
           <span>a</span>
+          <span>p</span>
+          <span>H</span>
+          <span>e</span>
           <span>r</span>
-          <span>A</span>
-          <span>q</span>
-          <span>u</span>
-          <span>í</span>
+          <span>e</span>
         </span>
       </button>
     </div>
