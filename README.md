@@ -43,4 +43,25 @@ Los archivos compilados se guardan en `dist/poke-api/browser/`, listos para subi
 
 ---
 
+## Despliegue en GitHub Pages
+
+El proyecto se despliega automáticamente en GitHub Pages cada vez que haces `git push` a la rama `main`, gracias a un workflow de **GitHub Actions** (`.github/workflows/deploy.yml`). No existe rama `gh-pages` — GitHub gestiona los archivos compilados internamente.
+
+### Primera configuración (solo una vez)
+
+En GitHub → **Settings** → **Pages**, asegúrate de que el source es **"GitHub Actions"** (no una rama).
+
+### ¿Cómo despliego?
+
+```bash
+git add .
+git commit -m "mi cambio"
+git push origin main
+# GitHub Actions compila y publica automáticamente
+```
+
+La app queda disponible en: **https://samu-tec.github.io/PokeAPI**
+
+---
+
 ¡Disfruta explorando Pokémon y practicando Angular! 🚀

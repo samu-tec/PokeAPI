@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 
 @Component({
@@ -8,9 +8,7 @@ import { Router, RouterOutlet } from '@angular/router';
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
-  @Input() title = '';
-
-  constructor(private router: Router) {}
+  private router = inject(Router);
 
   onLogoClick() {
     this.router.navigate(['/']);

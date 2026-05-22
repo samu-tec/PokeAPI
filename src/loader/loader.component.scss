@@ -8,15 +8,11 @@ $black1: #333;
 $white: #fff;
 $gray: #eee;
 
-body {
-  background: $black1;
-  background: radial-gradient(circle, $black1, $black);
-}
-
 .wrapper {
-  width: 960px;
+  width: 100%;
   height: 100%;
   margin: 0 auto;
+
   #loader {
     top: 50%;
     left: 50%;
@@ -29,6 +25,7 @@ body {
     height: 150px;
     margin: -75px 0 0 -75px;
     animation: spin 1s ease-in-out infinite;
+
     #top {
       position: absolute;
       background: $red;
@@ -38,6 +35,7 @@ body {
       border-bottom: 5px solid $black;
       border-radius: 100px 100px 0 0;
     }
+
     #center {
       position: absolute;
       background: $white;
@@ -51,6 +49,7 @@ body {
       border: 5px solid $black;
       border-radius: 50%;
     }
+
     #bottom {
       position: absolute;
       background: $white;

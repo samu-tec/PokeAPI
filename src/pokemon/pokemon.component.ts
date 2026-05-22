@@ -1,41 +1,40 @@
-import { Component, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { PokemonServiceService } from '../pokemon-service/pokemon-service.service';
+import { Component, inject, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { PokemonDetail, PokemonServiceService } from '../pokemon-service/pokemon-service.service';
 import { CommonModule } from '@angular/common';
 import { LoaderComponent } from '../loader/loader.component';
+import { CapitalizePipe } from '../capitalize/capitalize.pipe';
 
 @Component({
   selector: 'app-pokemon',
   standalone: true,
-  imports: [CommonModule, LoaderComponent],
+  imports: [CommonModule, LoaderComponent, CapitalizePipe],
   templateUrl: './pokemon.component.html',
   styleUrl: './pokemon.component.scss',
 })
-export class PokemonComponent {
-  private router = inject(ActivatedRoute);
+export class PokemonComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private pokemonService = inject(PokemonServiceService);
-  pokemon?: any; // Puede ser any o undefined
+
+  pokemon?: PokemonDetail;
   pokemonName: string | null = null;
-  loading: boolean = true;
+  loading = true;
+  pokeballOpen = false;
 
   constructor() {
-    this.pokemonName = this.router.snapshot.params['pokemonId'];
-    this.getPokemonDetail(this.pokemonName);
+    this.pokemonName = this.route.snapshot.params['pokemonId'];
   }
 
-  getPokemonDetail(pokemonId: string | null): void {
-    if (pokemonId) {
-      this.loading = true;
-      setTimeout(() => {
-        this.pokemonService.getPokemonDetail(pokemonId).subscribe((data) => {
-          this.pokemon = data;
-          this.loading = false;
-        });
-      }, 500);
-    }
+  ngOnInit(): void {
+    this.pokemonService.getPokemonDetail(this.pokemonName!).subscribe((data) => {
+      this.pokemon = data;
+      this.loading = false;
+      setTimeout(() => (this.pokeballOpen = true), 600);
+    });
   }
 
-  capitalizeFirstLetter(name: string): string {
-    return name.charAt(0).toUpperCase() + name.slice(1);
+  goBack(): void {
+    this.router.navigate(['/pokemon-list']);
   }
 }
