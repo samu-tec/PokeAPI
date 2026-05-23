@@ -11,9 +11,9 @@
 /* ── Card ───────────────────────────────────────── */
 .pokemonInfo {
   box-sizing: border-box;
-  border: 6px solid #385ba9;
+  border: 6px solid var(--color-blue);
   border-radius: 20px;
-  background-color: #ffcc01;
+  background-color: var(--color-yellow);
   width: 100%;
   max-width: 440px;
   margin: 0 auto;
@@ -33,7 +33,7 @@
 }
 
 .pokemon-id {
-  color: #385ba9;
+  color: var(--color-blue);
   font-size: 0.95rem;
   font-weight: normal;
 }
@@ -74,6 +74,7 @@
 }
 
 #pokeball .semicirculo-rojo {
+  box-sizing: content-box;
   width: 190px;
   height: 95px;
   border-radius: 190px 190px 0 0;
@@ -89,6 +90,7 @@
 }
 
 #pokeball .semicirculo-blanco {
+  box-sizing: content-box;
   width: 190px;
   height: 95px;
   border-radius: 0 0 240px 240px;
@@ -116,6 +118,7 @@
 }
 
 #pokeball .circulo-central {
+  box-sizing: content-box;
   left: 0;
   right: 0;
   margin: 0 auto;
@@ -190,7 +193,7 @@
 .info-label {
   font-size: 10px;
   font-weight: bold;
-  color: #385ba9;
+  color: var(--color-blue);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -214,7 +217,7 @@
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #385ba9;
+  color: var(--color-blue);
 }
 
 /* ── Abilities ──────────────────────────────────── */
@@ -227,7 +230,7 @@
 
 .ability-badge {
   background: rgba(56, 91, 169, 0.15);
-  border: 1.5px solid #385ba9;
+  border: 1.5px solid var(--color-blue);
   color: #1a1a1a;
   padding: 4px 12px;
   border-radius: 1rem;
@@ -247,7 +250,7 @@
 .stat-label {
   font-size: 11px;
   font-weight: bold;
-  color: #385ba9;
+  color: var(--color-blue);
   text-align: right;
   white-space: nowrap;
 }
@@ -276,7 +279,7 @@
 .btn-back {
   margin-top: 14px;
   padding: 10px 28px;
-  background-color: #385ba9;
+  background-color: var(--color-blue);
   color: white;
   border: none;
   border-radius: 2rem;
@@ -286,7 +289,7 @@
   transition: background-color 0.2s ease;
 
   &:hover {
-    background-color: #2a4580;
+    background-color: var(--color-blue-dark);
   }
 }
 

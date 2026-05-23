@@ -58,39 +58,38 @@ export const REGIONS: Region[] = [
 ];
 
 const API = 'https://pokeapi.co/api/v2';
+const PAGE_SIZE = 20;
 
 @Injectable({ providedIn: 'root' })
 export class PokemonService {
-  private http = inject(HttpClient);
-  private detailCache = new Map<string, Observable<PokemonDetail>>();
-  private regionCache = new Map<string, Observable<PokemonListResponse>>();
+  private readonly http = inject(HttpClient);
+  private readonly detailCache = new Map<string, Observable<PokemonDetail>>();
+  private readonly regionCache = new Map<string, Observable<PokemonListResponse>>();
 
-  getPokemonList(): Observable<PokemonListResponse> {
-    return this.http.get<PokemonListResponse>(`${API}/pokemon`);
-  }
-
-  changePage(url: string): Observable<PokemonListResponse> {
-    return this.http.get<PokemonListResponse>(url);
+  getPage(offset: number): Observable<PokemonListResponse> {
+    return this.http.get<PokemonListResponse>(`${API}/pokemon?offset=${offset}&limit=${PAGE_SIZE}`);
   }
 
   getPokemonByRegion(offset: number, limit: number): Observable<PokemonListResponse> {
     const key = `${offset}-${limit}`;
-    if (!this.regionCache.has(key)) {
-      this.regionCache.set(
-        key,
-        this.http.get<PokemonListResponse>(`${API}/pokemon?offset=${offset}&limit=${limit}`).pipe(shareReplay(1))
-      );
+    let cached = this.regionCache.get(key);
+    if (!cached) {
+      cached = this.http
+        .get<PokemonListResponse>(`${API}/pokemon?offset=${offset}&limit=${limit}`)
+        .pipe(shareReplay(1));
+      this.regionCache.set(key, cached);
     }
-    return this.regionCache.get(key)!;
+    return cached;
   }
 
   getPokemonDetail(id: string): Observable<PokemonDetail> {
-    if (!this.detailCache.has(id)) {
-      this.detailCache.set(
-        id,
-        this.http.get<PokemonDetail>(`${API}/pokemon/${id}`).pipe(shareReplay(1))
-      );
+    let cached = this.detailCache.get(id);
+    if (!cached) {
+      cached = this.http
+        .get<PokemonDetail>(`${API}/pokemon/${id}`)
+        .pipe(shareReplay(1));
+      this.detailCache.set(id, cached);
     }
-    return this.detailCache.get(id)!;
+    return cached;
   }
 }

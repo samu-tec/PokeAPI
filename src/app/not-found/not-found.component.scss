@@ -11,7 +11,7 @@
 
   h1 {
     font-size: 5rem;
-    color: #385ba9;
+    color: var(--color-blue);
     margin: 16px 0 8px;
   }
 
@@ -24,7 +24,7 @@
   a {
     display: inline-block;
     padding: 10px 28px;
-    background-color: #385ba9;
+    background-color: var(--color-blue);
     color: white;
     border-radius: 2rem;
     text-decoration: none;
@@ -32,7 +32,7 @@
     transition: background-color 0.2s ease;
 
     &:hover {
-      background-color: #2a4580;
+      background-color: var(--color-blue-dark);
     }
   }
 }

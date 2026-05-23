@@ -1,7 +1,28 @@
+:root {
+  --color-blue: #385ba9;
+  --color-blue-dark: #2a4580;
+  --color-yellow: #ffcc01;
+  --color-gold: #c8a102;
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   margin: 0;
   padding: 0;
   background: linear-gradient(135deg, #fffde7 0%, #e3f2fd 100%);
   min-height: 100vh;
   font-family: sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+button {
+  font-family: inherit;
 }

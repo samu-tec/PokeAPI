@@ -17,6 +17,7 @@ $gray: #eee;
     top: 50%;
     left: 50%;
     position: fixed;
+    box-sizing: content-box;
     border: 16px solid $black1;
     border-top: 16px solid $gray;
     border-bottom: 16px solid $gray;
@@ -28,6 +29,7 @@ $gray: #eee;
 
     #top {
       position: absolute;
+      box-sizing: content-box;
       background: $red;
       height: 70px;
       width: 150px;
@@ -38,6 +40,7 @@ $gray: #eee;
 
     #center {
       position: absolute;
+      box-sizing: content-box;
       background: $white;
       top: 50%;
       left: 50%;
@@ -52,6 +55,7 @@ $gray: #eee;
 
     #bottom {
       position: absolute;
+      box-sizing: content-box;
       background: $white;
       height: 70px;
       width: 150px;

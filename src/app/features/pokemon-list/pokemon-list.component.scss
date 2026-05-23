@@ -15,24 +15,24 @@
 
 .region-btn {
   padding: 6px 16px;
-  border: 2px solid #385ba9;
+  border: 2px solid var(--color-blue);
   border-radius: 2rem;
   background: white;
-  color: #385ba9;
+  color: var(--color-blue);
   font-weight: bold;
   font-size: 13px;
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
 
   &:hover {
-    background-color: #385ba9;
+    background-color: var(--color-blue);
     color: white;
     transform: scale(1.05);
   }
 
   &.active {
-    background-color: #ffcc01;
-    border-color: #ffcc01;
+    background-color: var(--color-yellow);
+    border-color: var(--color-yellow);
     color: #1a1a1a;
     box-shadow: 0 2px 8px rgba(255, 204, 1, 0.4);
   }
@@ -51,7 +51,7 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background-color: #385ba9;
+  background-color: var(--color-blue);
   color: white;
   border: none;
   font-size: 20px;
@@ -65,7 +65,7 @@
   z-index: 100;
 
   &:hover {
-    background-color: #2a4580;
+    background-color: var(--color-blue-dark);
     transform: scale(1.1);
   }
 

@@ -8,7 +8,7 @@ import { Router, RouterOutlet } from '@angular/router';
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
-  private router = inject(Router);
+  private readonly router = inject(Router);
 
   onLogoClick() {
     this.router.navigate(['/']);

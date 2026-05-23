@@ -1,36 +1,34 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Location, CommonModule } from '@angular/common';
+import { Location } from '@angular/common';
 import { PokemonDetail, PokemonService } from '../../core/services/pokemon.service';
 import { LoaderComponent } from '../../shared/components/loader/loader.component';
 import { CapitalizePipe } from '../../shared/pipes/capitalize.pipe';
 
 @Component({
   selector: 'app-pokemon-detail',
-  standalone: true,
-  imports: [CommonModule, LoaderComponent, CapitalizePipe],
+  imports: [LoaderComponent, CapitalizePipe],
   templateUrl: './pokemon-detail.component.html',
   styleUrl: './pokemon-detail.component.scss',
 })
 export class PokemonDetailComponent implements OnInit {
-  private route = inject(ActivatedRoute);
-  private location = inject(Location);
-  private pokemonService = inject(PokemonService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly location = inject(Location);
+  private readonly pokemonService = inject(PokemonService);
 
   pokemon?: PokemonDetail;
-  pokemonName: string | null = null;
+  readonly pokemonName: string = this.route.snapshot.params['pokemonId'];
   loading = true;
   pokeballOpen = false;
 
-  constructor() {
-    this.pokemonName = this.route.snapshot.params['pokemonId'];
-  }
-
   ngOnInit(): void {
-    this.pokemonService.getPokemonDetail(this.pokemonName!).subscribe((data) => {
-      this.pokemon = data;
-      this.loading = false;
-      setTimeout(() => (this.pokeballOpen = true), 600);
+    this.pokemonService.getPokemonDetail(this.pokemonName).subscribe({
+      next: (data) => {
+        this.pokemon = data;
+        this.loading = false;
+        setTimeout(() => (this.pokeballOpen = true), 600);
+      },
+      error: () => { this.loading = false; },
     });
   }
 

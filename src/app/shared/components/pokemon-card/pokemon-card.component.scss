@@ -21,7 +21,7 @@ img {
   height: 100%;
   position: relative;
   transform-style: preserve-3d;
-  transition: transform 0.999s;
+  transition: transform 1s;
   transform-origin: center;
 }
 
@@ -52,18 +52,18 @@ img {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 10px solid #385ba9;
+  border: 10px solid var(--color-blue);
   border-radius: 20px;
   box-shadow: 0 4px 16px rgba(56, 91, 169, 0.15);
 }
 
 .card-back {
-  background-color: #ffcc01;
+  background-color: var(--color-yellow);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 10px solid #c8a102;
+  border: 10px solid var(--color-gold);
   border-radius: 20px;
   font-size: 16px;
   transform: rotateY(180deg);
@@ -75,10 +75,10 @@ button {
   color: white;
   border-radius: 2rem;
   cursor: pointer;
-  width: 95.02px;
-  height: 42.66px;
+  width: 96px;
+  height: 44px;
   border: none;
-  background-color: #385ba9;
+  background-color: var(--color-blue);
   display: flex;
   justify-content: center;
   align-items: center;

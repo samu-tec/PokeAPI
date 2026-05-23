@@ -1,4 +1,5 @@
-import { Component, HostListener, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, HostListener, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PokemonCardComponent } from '../../shared/components/pokemon-card/pokemon-card.component';
 import { PaginatorComponent } from '../../shared/components/paginator/paginator.component';
@@ -20,6 +21,11 @@ export class PokemonListComponent implements OnInit {
   readonly regions = REGIONS;
   showScrollTop = false;
 
+  private readonly pokemonService = inject(PokemonService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
+
   @HostListener('window:scroll')
   onScroll(): void {
     this.showScrollTop = window.scrollY > 300;
@@ -29,16 +35,12 @@ export class PokemonListComponent implements OnInit {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  private pokemonService = inject(PokemonService);
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
-
   get isAllMode(): boolean {
     return this.selectedRegion.name === 'All';
   }
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe((params) => {
+    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const regionName = params['region'];
       const offset = parseInt(params['offset'] ?? '0', 10);
 
@@ -58,24 +60,29 @@ export class PokemonListComponent implements OnInit {
 
   private loadPage(offset: number): void {
     this.loading = true;
-    const url = `https://pokeapi.co/api/v2/pokemon?offset=${offset}&limit=20`;
-    this.pokemonService.changePage(url).subscribe((data) => {
-      setTimeout(() => {
-        this.pokemons = data.results;
-        this.pages = { next: data.next, previous: data.previous };
-        this.loading = false;
-      }, 250);
+    this.pokemonService.getPage(offset).subscribe({
+      next: (data) => {
+        setTimeout(() => {
+          this.pokemons = data.results;
+          this.pages = { next: data.next, previous: data.previous };
+          this.loading = false;
+        }, 350);
+      },
+      error: () => { this.loading = false; },
     });
   }
 
   private loadRegion(region: Region): void {
     this.loading = true;
-    this.pokemonService.getPokemonByRegion(region.offset, region.limit).subscribe((data) => {
-      setTimeout(() => {
-        this.pokemons = data.results;
-        this.pages = { next: null, previous: null };
-        this.loading = false;
-      }, 250);
+    this.pokemonService.getPokemonByRegion(region.offset, region.limit).subscribe({
+      next: (data) => {
+        setTimeout(() => {
+          this.pokemons = data.results;
+          this.pages = { next: null, previous: null };
+          this.loading = false;
+        }, 350);
+      },
+      error: () => { this.loading = false; },
     });
   }
 
