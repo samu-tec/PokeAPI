@@ -1,0 +1,105 @@
+<div class="game-container">
+  <div class="header-row">
+    <a routerLink="/mini-games" class="btn-back">← Back to Games</a>
+  </div>
+
+  <div class="score-board">
+    <div class="score-card">
+      <span class="score-label">Score</span>
+      <span class="score-value">{{ miniGamesService.score() }}</span>
+    </div>
+    <div class="score-card streak">
+      <span class="score-label">Active Streak</span>
+      <span class="score-value">🔥 {{ miniGamesService.streak() }}</span>
+    </div>
+  </div>
+
+  <div class="game-content-area">
+
+    @if (loading()) {
+      <app-loader />
+    } @else {
+      @if (pokemonA(); as a) {
+        @if (pokemonB(); as b) {
+          <div class="comparison-arena">
+            <!-- Pokémon A (Reference Card) -->
+            <div class="compare-card card-left">
+              <div class="pokemon-image-box">
+                <img [src]="a.sprites.other['official-artwork'].front_default" [alt]="a.name" />
+              </div>
+              <h3>{{ a.name | capitalize }}</h3>
+              <div class="weight-label">{{ a.weight / 10 }} kg</div>
+            </div>
+
+            <div class="vs-divider">VS</div>
+
+            <!-- Pokémon B (Target Card) -->
+            <div class="compare-card card-right">
+              <div class="pokemon-image-box">
+                <img [src]="b.sprites.other['official-artwork'].front_default" [alt]="b.name" />
+              </div>
+              <h3>{{ b.name | capitalize }}</h3>
+              <div class="weight-label">
+                @if (!answered()) {
+                  <span class="weight-hidden">? kg</span>
+                } @else {
+                  <span class="weight-revealed">{{ b.weight / 10 }} kg</span>
+                }
+              </div>
+            </div>
+          </div>
+
+          <p class="question-text">Is <strong>{{ b.name | capitalize }}</strong> heavier or lighter than <strong>{{ a.name | capitalize }}</strong>?</p>
+          
+          <div class="choice-buttons">
+            <button
+              class="btn-choice btn-higher"
+              [disabled]="answered()"
+              [class.selected]="answered() && selectedAnswer() === 'higher'"
+              (click)="makeGuess('higher')"
+            >
+              Higher ▲
+            </button>
+            <button
+              class="btn-choice btn-lower"
+              [disabled]="answered()"
+              [class.selected]="answered() && selectedAnswer() === 'lower'"
+              (click)="makeGuess('lower')"
+            >
+              Lower ▼
+            </button>
+          </div>
+
+          <div class="feedback-box" [class.unanswered]="!answered()" [class.correct]="answered() && isCorrect()" [class.wrong]="answered() && !isCorrect()">
+            @if (!answered()) {
+              <p class="feedback-instruction">Choose Higher or Lower to compare weights!</p>
+            } @else {
+              <div class="answer-result-wrapper" style="width: 100%;">
+                <h3 class="feedback-title">
+                  @if (isCorrect()) {
+                    <span class="text-correct">🏆 Correct!</span>
+                  } @else {
+                    <span class="text-wrong">💀 Incorrect!</span>
+                  }
+                </h3>
+                <p class="feedback-text" style="margin-bottom: 8px;">
+                  {{ b.name | capitalize }} ({{ b.weight / 10 }} kg) is
+                  <strong>{{ b.weight >= a.weight ? 'heavier' : 'lighter' }}</strong> than
+                  {{ a.name | capitalize }} ({{ a.weight / 10 }} kg).
+                </p>
+                <div class="actions-area">
+                  <button class="btn-next" (click)="nextRound()">
+                    Next Round ➜
+                  </button>
+                  <button class="btn-sound-replay" (click)="playCryB()" title="Play Cry">
+                    🔊 Listen to Cry
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
+    }
+  </div>
+</div>

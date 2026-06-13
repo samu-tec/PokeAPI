@@ -1,74 +1,106 @@
-@if (loading) {
+@if (loading()) {
   <app-loader />
 } @else {
-  <div class="pokemonInfo">
-    <h2 class="pokemon-title">{{ pokemonName | capitalize }} <span class="pokemon-id">#{{ pokemon!.id }}</span></h2>
-
-    <div class="pokeball-wrapper">
-      <div id="pokeball" [class.open]="pokeballOpen">
-        <img
-          class="pokemonImg"
-          [src]="pokemon!.sprites.front_default"
-          [alt]="pokemonName"
-        />
-        <div class="semicirculo-rojo"></div>
-        <div class="semicirculo-blanco"></div>
-        <div class="borde-negro"></div>
-        <div class="circulo-central"></div>
-      </div>
-    </div>
-
-    <div class="type-row">
-      @for (type of pokemon!.types; track type.type.name) {
-        <span class="type-badge" [style.background-color]="getTypeColor(type.type.name)">
-          {{ type.type.name | capitalize }}
-        </span>
-      }
-    </div>
-
-    <div class="info-grid">
-      <div class="info-cell">
-        <span class="info-label">Height</span>
-        <span class="info-value">{{ formatHeight(pokemon!.height) }}</span>
-      </div>
-      <div class="info-cell">
-        <span class="info-label">Weight</span>
-        <span class="info-value">{{ formatWeight(pokemon!.weight) }}</span>
-      </div>
-      @if (pokemon!.base_experience) {
-        <div class="info-cell">
-          <span class="info-label">Base EXP</span>
-          <span class="info-value">{{ pokemon!.base_experience }}</span>
-        </div>
-      }
-    </div>
-
-    <div class="section">
-      <h3 class="section-title">Abilities</h3>
-      <div class="ability-row">
-        @for (ability of pokemon!.abilities; track ability.ability.name) {
-          <span class="ability-badge">{{ ability.ability.name | capitalize }}</span>
+  @if (pokemon(); as details) {
+    <div class="pokemonInfo">
+      <div class="title-container">
+        <h2 class="pokemon-title">
+          {{ currentPokemonName() | capitalize }} <span class="pokemon-id">#{{ details.id }}</span>
+        </h2>
+        @if (details.cries?.latest) {
+          <button class="btn-cry" (click)="playCry()" aria-label="Play cry" title="Play cry">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+              <path d="M12 3v18l-6-6H2V9h4zm4.5 9c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 4.45v2.06c2.89.86 5 3.54 5 6.49s-2.11 5.63-5 6.49v2.06c4.01-.91 7-4.49 7-8.55s-2.99-7.64-7-8.55z"/>
+            </svg>
+          </button>
         }
       </div>
-    </div>
 
-    <div class="section">
-      <h3 class="section-title">Base Stats</h3>
-      @for (stat of pokemon!.stats; track stat.stat.name) {
-        <div class="stat-row">
-          <span class="stat-label">{{ getStatLabel(stat.stat.name) }}</span>
-          <span class="stat-value">{{ stat.base_stat }}</span>
-          <div class="stat-bar-bg">
-            <div
-              class="stat-bar-fill"
-              [style.width.%]="(stat.base_stat / 255) * 100"
-              [style.background-color]="getStatColor(stat.base_stat)"
-            ></div>
+      <div class="pokeball-wrapper">
+        <div id="pokeball" [class.open]="pokeballOpen()">
+          <img
+            class="pokemonImg"
+            [src]="details.sprites.front_default"
+            [alt]="details.name"
+          />
+          <div class="semicirculo-rojo"></div>
+          <div class="semicirculo-blanco"></div>
+          <div class="borde-negro"></div>
+          <div class="circulo-central"></div>
+        </div>
+      </div>
+
+      <div class="type-row">
+        @for (type of details.types; track type.type.name) {
+          <span class="type-badge" [style.background-color]="getTypeColor(type.type.name)">
+            {{ type.type.name | capitalize }}
+          </span>
+        }
+      </div>
+
+      <div class="info-grid">
+        <div class="info-cell">
+          <span class="info-label">Height</span>
+          <span class="info-value">{{ formatHeight(details.height) }}</span>
+        </div>
+        <div class="info-cell">
+          <span class="info-label">Weight</span>
+          <span class="info-value">{{ formatWeight(details.weight) }}</span>
+        </div>
+        @if (details.base_experience) {
+          <div class="info-cell">
+            <span class="info-label">Base EXP</span>
+            <span class="info-value">{{ details.base_experience }}</span>
+          </div>
+        }
+      </div>
+
+      <div class="section">
+        <h3 class="section-title">Abilities</h3>
+        <div class="ability-row">
+          @for (ability of details.abilities; track ability.ability.name) {
+            <span class="ability-badge">{{ ability.ability.name | capitalize }}</span>
+          }
+        </div>
+      </div>
+
+      <div class="section">
+        <h3 class="section-title">Base Stats</h3>
+        @for (stat of details.stats; track stat.stat.name) {
+          <div class="stat-row">
+            <span class="stat-label">{{ getStatLabel(stat.stat.name) }}</span>
+            <span class="stat-value">{{ stat.base_stat }}</span>
+            <div class="stat-bar-bg">
+              <div
+                class="stat-bar-fill"
+                [style.width.%]="(stat.base_stat / 255) * 100"
+                [style.background-color]="getStatColor(stat.base_stat)"
+              ></div>
+            </div>
+          </div>
+        }
+      </div>
+
+      @if (evolutions().length > 1) {
+        <div class="section">
+          <h3 class="section-title">Evolution Chain</h3>
+          <div class="evolution-chain-container">
+            @for (evo of evolutions(); track evo.name; let isLast = $last) {
+              <div class="evolution-step" (click)="navigateToPokemon(evo.name)">
+                <div class="evo-image-wrapper" [class.active]="evo.name.toLowerCase() === currentPokemonName().toLowerCase()">
+                  <img [src]="evo.image" [alt]="evo.name" class="evo-image" />
+                </div>
+                <span class="evo-name">{{ evo.name | capitalize }}</span>
+              </div>
+              @if (!isLast) {
+                <div class="evolution-arrow">➜</div>
+              }
+            }
           </div>
         </div>
       }
-    </div>
 
-    <button class="btn-back" (click)="goBack()">← Back</button>
-  </div>
+      <button class="btn-back" (click)="goBack()">← Back</button>
+    </div>
+  }
 }

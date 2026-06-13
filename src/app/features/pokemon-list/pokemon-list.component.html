@@ -1,8 +1,9 @@
+<h2 class="filter-title">Regions</h2>
 <div class="region-selector">
   @for (region of regions; track region.name) {
     <button
       class="region-btn"
-      [class.active]="selectedRegion.name === region.name"
+      [class.active]="selectedRegion().name === region.name"
       (click)="selectRegion(region)"
     >
       {{ region.name }}
@@ -10,27 +11,244 @@
   }
 </div>
 
-@if (loading) {
+<h2 class="filter-title">Types</h2>
+<div class="type-filters-container">
+  <div class="type-filters-scroll">
+    @for (type of pokemonTypes; track type) {
+      <button
+        class="type-filter-btn"
+        [class.active]="isTypeSelected(type)"
+        [style.background-color]="isTypeSelected(type) ? getTypeColor(type) : '#ffffff'"
+        [style.border-color]="getTypeColor(type)"
+        [style.color]="isTypeSelected(type) ? '#ffffff' : getTypeColor(type)"
+        (click)="toggleType(type)"
+      >
+        {{ type | capitalize }}
+      </button>
+    }
+  </div>
+</div>
+
+<div class="search-container">
+  <input
+    type="text"
+    [value]="searchQuery()"
+    (input)="onSearchInput($event)"
+    placeholder="Search Pokémon..."
+    class="search-input"
+  />
+  @if (searchQuery()) {
+    <button class="clear-btn" (click)="clearSearch()" aria-label="Clear search">×</button>
+  }
+</div>
+
+<div class="results-header">
+  <h2>Pokémon List</h2>
+  <span class="results-count">
+    {{ allFilteredMaster().length }} Pokémon found
+  </span>
+</div>
+
+@if (loading()) {
   <app-loader />
 } @else {
-  @if (isAllMode) {
-    <app-paginator
-      (nextPage)="nextPage()"
-      (prevPage)="prevPage()"
-    />
-  }
-
   <div class="pokemon-grid">
-    @for (pokemon of pokemons; track pokemon.name) {
+    @for (pokemon of filteredPokemons(); track pokemon.name) {
       <app-pokemon-card
-        [pokemon]="pokemon.name | capitalize"
-        [imagen]="'https://img.pokemondb.net/artwork/large/' + pokemon.name + '.jpg'"
+        [pokemon]="pokemon.name"
+        [imagen]="getPokemonImageUrl(pokemon.url)"
+        [isComparing]="isComparing(pokemon.name)"
         (clickName)="clickName($event)"
+        (compare)="toggleCompare($event)"
       />
     }
+    @if (filteredPokemons().length === 0) {
+      <div class="no-results">
+        <p>No Pokémon found matching current filters.</p>
+      </div>
+    }
+  </div>
+
+  @if (loadingMore()) {
+    <div class="loading-more-indicator">
+      <div class="mini-spinner"></div>
+      <span>Loading more Pokémon...</span>
+    </div>
+  }
+}
+
+<!-- Floating buttons for Team and Comparison -->
+<div class="floating-controls">
+  <button class="fab-btn team-fab" (click)="isTeamDrawerOpen.set(true)">
+    <span class="btn-icon">🎒</span>
+    <span class="btn-text">Team</span>
+    <span class="btn-counter">({{ teamService.team().length }}/6)</span>
+  </button>
+  <button
+    class="fab-btn compare-fab"
+    [class.ready]="compareList().length === 2"
+    (click)="openComparison()"
+  >
+    <span class="btn-icon">⚖️</span>
+    <span class="btn-text">Compare</span>
+    <span class="btn-counter">({{ compareList().length }}/2)</span>
+  </button>
+</div>
+
+<!-- Team Drawer Modal -->
+@if (isTeamDrawerOpen()) {
+  <div class="modal-overlay" (click)="isTeamDrawerOpen.set(false)">
+    <div class="modal-card team-drawer" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2><span class="header-icon">🎒</span> My Pokémon Team</h2>
+        <button class="close-modal" (click)="isTeamDrawerOpen.set(false)">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="team-grid">
+          @for (m of teamService.team(); track m.name) {
+            <div class="team-member-card">
+              <button class="remove-member" (click)="teamService.removeFromTeam(m.name)">×</button>
+              <img [src]="m.image" [alt]="m.name" (click)="clickName(m.name)" />
+              <span class="member-name">{{ m.name | capitalize }}</span>
+              <div class="member-types">
+                @for (t of m.types; track t) {
+                  <span class="type-badge" [style.background-color]="getTypeColor(getTypeName(t))">
+                    {{ getTypeName(t) | capitalize }}
+                  </span>
+                }
+              </div>
+            </div>
+          }
+          @for (empty of [].constructor(6 - teamService.team().length); track $index) {
+            <div class="team-member-card empty">
+              <div class="empty-slot">+</div>
+              <span class="member-name">Empty</span>
+            </div>
+          }
+        </div>
+
+        @if (teamService.team().length === 0) {
+          <div class="empty-team-placeholder">
+            <div class="placeholder-icon">🎒</div>
+            <h4>Your Backpack is Empty!</h4>
+            <p>Add up to 6 Pokémon using the backpack icon on the cards. Once added, you will see their average stats, synergy analysis, and type weakness coverage here!</p>
+          </div>
+        }
+
+        @if (teamService.team().length > 0) {
+          <div class="team-analysis-section">
+            <h3>Average Stats</h3>
+            <div class="stats-bars">
+              @for (s of getTeamAverageStats(); track s.name) {
+                <div class="team-stat-row">
+                  <span class="team-stat-label">{{ getStatLabel(s.name) }}</span>
+                  <span class="team-stat-val">{{ s.value }}</span>
+                  <div class="team-stat-bar-bg">
+                    <div class="team-stat-bar-fill" [style.width.%]="(s.value / 255) * 100"></div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="team-analysis-section">
+            <h3>Group Weaknesses (Takes Damage)</h3>
+            <div class="weaknesses-list">
+              @for (w of getTeamWeaknesses(); track w.type) {
+                <span class="weakness-badge" [style.background-color]="getTypeColor(w.type)">
+                  {{ w.type | capitalize }} (x{{ w.factor.toFixed(1) }})
+                </span>
+              }
+              @if (getTeamWeaknesses().length === 0) {
+                <p class="no-weakness">Excellent coverage! No critical group weaknesses.</p>
+              }
+            </div>
+          </div>
+          <div class="modal-actions-footer">
+            <button class="btn-clear-team" (click)="teamService.clearTeam(); isTeamDrawerOpen.set(false)">Clear Team</button>
+          </div>
+        }
+      </div>
+    </div>
   </div>
 }
 
-@if (showScrollTop) {
+<!-- Comparison Modal -->
+@if (isCompareModalOpen()) {
+  <div class="modal-overlay" (click)="closeComparison()">
+    <div class="modal-card compare-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2><span class="header-icon">⚖️</span> Stats Comparison</h2>
+        <button class="close-modal" (click)="closeComparison()">×</button>
+      </div>
+      <div class="modal-body compare-body">
+        @if (compareData().length === 2) {
+          <div class="compare-columns">
+            <div class="compare-pokemon-col">
+              <img [src]="compareData()[0].sprites.front_default" [alt]="compareData()[0].name" (click)="clickName(compareData()[0].name)" />
+              <h3>{{ compareData()[0].name | capitalize }}</h3>
+              <div class="compare-types">
+                @for (t of compareData()[0].types; track t.type.name) {
+                  <span class="type-badge" [style.background-color]="getTypeColor(t.type.name)">
+                    {{ t.type.name | capitalize }}
+                  </span>
+                }
+              </div>
+            </div>
+            
+            <div class="compare-vs">VS</div>
+            
+            <div class="compare-pokemon-col">
+              <img [src]="compareData()[1].sprites.front_default" [alt]="compareData()[1].name" (click)="clickName(compareData()[1].name)" />
+              <h3>{{ compareData()[1].name | capitalize }}</h3>
+              <div class="compare-types">
+                @for (t of compareData()[1].types; track t.type.name) {
+                  <span class="type-badge" [style.background-color]="getTypeColor(t.type.name)">
+                    {{ t.type.name | capitalize }}
+                  </span>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="comparison-stats-table">
+            @for (s of compareData()[0].stats; track s.stat.name; let idx = $index) {
+              <div class="compare-stat-row">
+                <div class="comp-val val1" [class.winner]="s.base_stat > compareData()[1].stats[idx].base_stat">
+                  {{ s.base_stat }}
+                </div>
+                <div class="comp-label">{{ getStatLabel(s.stat.name) }}</div>
+                <div class="comp-val val2" [class.winner]="compareData()[1].stats[idx].base_stat > s.base_stat">
+                  {{ compareData()[1].stats[idx].base_stat }}
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-compare-placeholder">
+            <div class="placeholder-icon">⚖️</div>
+            <h4>No Pokémon selected!</h4>
+            <p>Select exactly 2 Pokémon from the list by clicking the scales icon (⚖️) on their cards.</p>
+            <p class="placeholder-desc">Once you select them, you will see a side-by-side comparison of their physical dimensions, types, and base stats to see who wins in each category!</p>
+            
+            @if (compareList().length === 1) {
+              <div class="currently-selected-hint">
+                <strong>Selected:</strong> {{ compareList()[0] | capitalize }} (need 1 more)
+              </div>
+            }
+          </div>
+        }
+        
+        @if (compareList().length > 0) {
+          <div class="modal-actions-footer">
+            <button class="btn-clear-compare" (click)="clearCompareList(); closeComparison()">Clear Selection</button>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}
+
+@if (showScrollTop()) {
   <button class="scroll-top-btn" (click)="scrollToTop()" aria-label="Scroll to top">↑</button>
 }

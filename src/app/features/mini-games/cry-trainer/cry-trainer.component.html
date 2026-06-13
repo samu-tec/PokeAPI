@@ -1,0 +1,85 @@
+<div class="cry-container">
+  <div class="header-row">
+    <a routerLink="/mini-games" class="btn-back">← Back to Games</a>
+  </div>
+
+  <div class="score-board">
+    <div class="score-card">
+      <span class="score-label">Score</span>
+      <span class="score-value">{{ miniGamesService.score() }}</span>
+    </div>
+    <div class="score-card streak">
+      <span class="score-label">Active Streak</span>
+      <span class="score-value">🔥 {{ miniGamesService.streak() }}</span>
+    </div>
+  </div>
+
+  <div class="game-content-area">
+
+    @if (loading()) {
+      <app-loader />
+    } @else {
+      @if (currentPokemon(); as pokemon) {
+        <div class="sound-container">
+          <div class="sound-circle" (click)="playCry()">
+            @if (!answered()) {
+              <!-- Pulsing speaker icon during guessing -->
+              <div class="speaker-icon pulsing">🔊</div>
+              <div class="tap-hint">Tap to listen</div>
+            } @else {
+              <!-- Reveal Pokémon in full color once answered -->
+              <img
+                [src]="pokemon.sprites.other['official-artwork'].front_default"
+                [alt]="pokemon.name"
+                class="pokemon-reveal-img"
+              />
+            }
+          </div>
+        </div>
+
+        <div class="question-title">
+          <h2>Whose cry is this?</h2>
+        </div>
+
+        <div class="options-grid">
+          @for (opt of options(); track opt) {
+            <button
+              class="option-btn"
+              [class.correct]="answered() && opt.toLowerCase() === pokemon.name.toLowerCase()"
+              [class.wrong]="answered() && selectedAnswer().toLowerCase() === opt.toLowerCase() && !isCorrect()"
+              [disabled]="answered()"
+              (click)="selectOption(opt)"
+            >
+              {{ opt | capitalize }}
+            </button>
+          }
+        </div>
+
+        <div class="feedback-box" [class.unanswered]="!answered()" [class.correct]="answered() && isCorrect()" [class.wrong]="answered() && !isCorrect()">
+          @if (!answered()) {
+            <p class="feedback-instruction">Tap the purple circle to listen, then select an option!</p>
+          } @else {
+            <h3 class="feedback-title">
+              @if (isCorrect()) {
+                <span class="text-correct">🏆 Correct!</span>
+              } @else {
+                <span class="text-wrong">💀 Incorrect!</span>
+              }
+            </h3>
+            <p class="feedback-text">
+              It is <strong>{{ pokemon.name | capitalize }}</strong>!
+            </p>
+            <div class="actions-area">
+              <button class="btn-next" (click)="nextRound()">
+                Next Pokémon ➜
+              </button>
+              <button class="btn-sound-replay" (click)="playCry()" title="Play Cry">
+                🔊 Replay Cry
+              </button>
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+</div>

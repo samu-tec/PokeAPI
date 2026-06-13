@@ -1,0 +1,83 @@
+<div class="dashboard-container">
+  <div class="dashboard-header-row">
+    <!-- Total Score Pill (Left) -->
+    <div class="score-pill">
+      <span class="pill-label">Total Score</span>
+      <span class="pill-value">🏆 {{ miniGamesService.score() }}</span>
+    </div>
+
+    <!-- Header Text (Center) -->
+    <header class="dashboard-header">
+      <h1>Mini-Games Dashboard</h1>
+      <p>Choose a simple game to play and test your Pokémon knowledge!</p>
+    </header>
+
+    <!-- Active Streak Pill (Right) -->
+    <div class="score-pill streak">
+      <span class="pill-label">Active Streak</span>
+      <span class="pill-value">🔥 {{ miniGamesService.streak() }}</span>
+    </div>
+  </div>
+
+  <div class="games-grid">
+    <!-- Game 1: Who's That Pokemon? -->
+    <a routerLink="trivia" class="game-card card-silhouette">
+      <div class="card-icon">❓</div>
+      <div class="card-content">
+        <h2>Who's That Pokémon?</h2>
+        <p>Identify Pokémon from their shadowed silhouette. Listen to their cry for a clue!</p>
+      </div>
+      <div class="card-action">Play Game ➜</div>
+    </a>
+
+    <!-- Game 2: Pokémon Memory Match -->
+    <a routerLink="memory" class="game-card card-memory">
+      <div class="card-icon">🎴</div>
+      <div class="card-content">
+        <h2>Memory Match</h2>
+        <p>Flip and match pairs of matching Pokémon cards in the fewest moves possible.</p>
+      </div>
+      <div class="card-action">Play Game ➜</div>
+    </a>
+
+    <!-- Game 3: Type Quiz -->
+    <a routerLink="type-quiz" class="game-card card-type">
+      <div class="card-icon">⚡</div>
+      <div class="card-content">
+        <h2>Type Guessing Quiz</h2>
+        <p>A full-color Pokémon is shown. Can you correctly guess its primary elemental type?</p>
+      </div>
+      <div class="card-action">Play Game ➜</div>
+    </a>
+
+    <!-- Game 4: Cry Trainer -->
+    <a routerLink="cry-trainer" class="game-card card-cry">
+      <div class="card-icon">🔊</div>
+      <div class="card-content">
+        <h2>Cry Trainer</h2>
+        <p>Listen carefully to a Pokémon cry and guess which Pokémon it belongs to.</p>
+      </div>
+      <div class="card-action">Play Game ➜</div>
+    </a>
+
+    <!-- Game 5: Higher or Lower -->
+    <a routerLink="higher-lower" class="game-card card-higher-lower">
+      <div class="card-icon">⚖️</div>
+      <div class="card-content">
+        <h2>Higher or Lower</h2>
+        <p>Compare the weights of two Pokémon. Guess if the hidden one is heavier or lighter.</p>
+      </div>
+      <div class="card-action">Play Game ➜</div>
+    </a>
+
+    <!-- Game 6: Stats Battle -->
+    <a routerLink="stats-battle" class="game-card card-stats-battle">
+      <div class="card-icon">⚔</div>
+      <div class="card-content">
+        <h2>Stats Battle</h2>
+        <p>Draw a Pokémon card, choose a base stat, and battle it against the AI's hidden card.</p>
+      </div>
+      <div class="card-action">Play Game ➜</div>
+    </a>
+  </div>
+</div>

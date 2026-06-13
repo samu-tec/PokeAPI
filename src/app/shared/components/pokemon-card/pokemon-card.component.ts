@@ -1,44 +1,46 @@
 import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { TeamBuilderService } from '../../../core/services/team-builder.service';
+import { CapitalizePipe } from '../../pipes/capitalize.pipe';
 
 /**
- * Tarjeta de Pokémon con efecto de giro 3D.
+ * Pokémon card component featuring 3D hover/tap flip effects, team builder shortcuts, and comparisons.
  *
- * En dispositivos con hover (escritorio) el giro se controla con CSS al pasar el ratón.
- * En dispositivos táctiles —detectados con `matchMedia('(hover: none)')`— el giro se
- * controla con tap y se revierte automáticamente a los 3 segundos para evitar que la
- * tarjeta quede volteada al hacer scroll.
+ * On desktop (hover-capable devices), card flipping is CSS-driven via mouse hover.
+ * On mobile/tablet (touch devices), flipping is toggled via tap.
  */
 @Component({
   selector: 'app-pokemon-card',
-  imports: [],
+  imports: [CapitalizePipe],
   templateUrl: './pokemon-card.component.html',
   styleUrl: './pokemon-card.component.scss',
 })
 export class PokemonCardComponent implements OnInit {
-  /** Nombre del Pokémon que muestra la tarjeta. */
+  /** Name of the Pokémon displayed on this card. */
   @Input() pokemon = '';
 
-  /** URL del sprite/artwork del Pokémon. */
+  /** URL of the Pokémon's official artwork image. */
   @Input() imagen = '';
 
-  /** Se emite al hacer click en el nombre, propagando el nombre del Pokémon hacia el padre. */
+  /** Boolean state specifying if this card is currently selected for stat comparison. */
+  @Input() isComparing = false;
+
+  /** Emitted when clicking on the Pokémon's name, bubbling it up to the parent list component. */
   @Output() clickName = new EventEmitter<string>();
 
-  private readonly destroyRef = inject(DestroyRef);
+  /** Emitted when clicking on the compare selection trigger. */
+  @Output() compare = new EventEmitter<string>();
 
-  /** Estado actual del giro de la tarjeta (solo aplicable en táctil). */
+  private readonly destroyRef = inject(DestroyRef);
+  readonly teamService = inject(TeamBuilderService);
+
+  /** Tracks card flip state on mobile devices. */
   isFlipped = false;
 
-  /** `true` si el dispositivo no soporta hover (móvil/tablet). Determina el modo de interacción. */
+  /** True if the device doesn't support hover interactions (touchscreens). */
   isTouchDevice = false;
 
   private flipTimer: ReturnType<typeof setTimeout> | null = null;
 
-  /**
-   * Suscribe un listener a `matchMedia('(hover: none)')` para actualizar {@link isTouchDevice}
-   * dinámicamente (ej. conectar un ratón a una tablet). Limpia el listener y cualquier
-   * timer pendiente al destruir el componente.
-   */
   ngOnInit(): void {
     const mql = window.matchMedia('(hover: none)');
     this.isTouchDevice = mql.matches;
@@ -52,10 +54,6 @@ export class PokemonCardComponent implements OnInit {
     });
   }
 
-  /**
-   * Alterna el giro de la tarjeta. Solo actúa en dispositivos táctiles; en escritorio
-   * el CSS gestiona el hover. Tras voltearse, programa un auto-flip a los 3 s.
-   */
   onCardClick(): void {
     if (!this.isTouchDevice) return;
     if (this.flipTimer) clearTimeout(this.flipTimer);
@@ -66,5 +64,13 @@ export class PokemonCardComponent implements OnInit {
         this.flipTimer = null;
       }, 3000);
     }
+  }
+
+  isInTeam(): boolean {
+    return this.teamService.isInTeam(this.pokemon);
+  }
+
+  toggleTeam(): void {
+    this.teamService.toggleTeamMember(this.pokemon);
   }
 }

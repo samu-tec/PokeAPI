@@ -1,0 +1,73 @@
+<div class="memory-container">
+  <div class="header-row">
+    <a routerLink="/mini-games" class="btn-back">← Back to Games</a>
+  </div>
+
+  <div class="score-board">
+    <div class="score-card">
+      <span class="score-label">Global Score</span>
+      <span class="score-value">{{ miniGamesService.score() }}</span>
+    </div>
+    <div class="score-card streak">
+      <span class="score-label">Active Streak</span>
+      <span class="score-value">🔥 {{ miniGamesService.streak() }}</span>
+    </div>
+  </div>
+
+  <div class="game-content-area">
+
+    <div class="game-stats">
+      <div class="stat-pill">Moves: <strong>{{ memoryMoves() }}</strong></div>
+      <div class="stat-pill">Matches: <strong>{{ memoryMatches() }}/4</strong></div>
+    </div>
+
+    @if (loading()) {
+      <app-loader />
+    } @else {
+      <div class="memory-grid">
+        @for (card of memoryCards(); track card.id) {
+          <div
+            class="memory-card-wrapper"
+            (click)="onCardClick(card.id)"
+          >
+            <div class="memory-card-inner" [class.flipped]="card.flipped || card.matched">
+              <!-- Card Back (Shown when face down) -->
+              <div class="card-face card-back-face">
+                <div class="pokeball-pattern">
+                  <div class="pokeball-top"></div>
+                  <div class="pokeball-center">
+                    <div class="pokeball-button"></div>
+                  </div>
+                  <div class="pokeball-bottom"></div>
+                </div>
+              </div>
+              <!-- Card Front (Shown when flipped/matched) -->
+              <div class="card-face card-front-face" [class.matched]="card.matched">
+                <img [src]="card.image" [alt]="card.name" />
+                <span class="pokemon-name">{{ card.name | capitalize }}</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="feedback-box" [class.unanswered]="!won()" [class.correct]="won()">
+        @if (!won()) {
+          <p class="feedback-instruction">Find all matching pairs of Pokémon cards!</p>
+        } @else {
+          <h3 class="feedback-title">
+            <span class="text-correct">🏆 Congratulations!</span>
+          </h3>
+          <p class="feedback-text">
+            You matched all Pokémon in <strong>{{ memoryMoves() }}</strong> moves!
+          </p>
+          <div class="actions-area">
+            <button class="btn-replay" (click)="startNewGame()">
+              Play Again ➜
+            </button>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

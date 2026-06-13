@@ -6,4 +6,12 @@
   width="400"
 />
 
+@if (showMenu()) {
+  <nav class="nav-menu">
+    <a routerLink="/pokedex" routerLinkActive="active" class="nav-tab">Pokédex</a>
+    <a routerLink="/mini-games" routerLinkActive="active" class="nav-tab">Mini-Games</a>
+  </nav>
+}
+
 <router-outlet />
+

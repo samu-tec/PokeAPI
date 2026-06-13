@@ -1,0 +1,174 @@
+<div class="battle-container">
+  <div class="header-row">
+    <a routerLink="/mini-games" class="btn-back">← Back to Games</a>
+  </div>
+
+  <div class="score-board">
+    <div class="score-card">
+      <span class="score-label">Score</span>
+      <span class="score-value">{{ miniGamesService.score() }}</span>
+    </div>
+    <div class="score-card streak">
+      <span class="score-label">Active Streak</span>
+      <span class="score-value">🔥 {{ miniGamesService.streak() }}</span>
+    </div>
+  </div>
+
+  <div class="game-content-area">
+
+    @if (loading()) {
+      <app-loader />
+    } @else {
+      @if (!playerPokemon()) {
+        <!-- Search selector screen -->
+        <div class="search-container">
+          <div class="swords-icon">⚔</div>
+          <h2>Choose Your Fighter</h2>
+          <p class="search-description">
+            Search and select a Kanto Pokémon to duel against the AI!
+          </p>
+
+          <div class="search-input-wrapper">
+            <input
+              type="text"
+              placeholder="Type Pokémon name... (e.g. Pikachu)"
+              [value]="searchQuery()"
+              (input)="onSearchInput($event)"
+            />
+
+            @if (filteredPool().length > 0) {
+              <div class="search-dropdown">
+                @for (p of filteredPool(); track p.name) {
+                  <div class="dropdown-item" (click)="selectPlayerPokemon(p.name)">
+                    <img [src]="getPokemonSpriteUrl(p.url)" [alt]="p.name" class="dropdown-sprite" />
+                    <span class="dropdown-name">{{ p.name | capitalize }}</span>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+          <div class="suggestions-container">
+            <span class="suggestions-label">Suggestions:</span>
+            <div class="suggestions-list">
+              <button class="btn-suggestion" (click)="selectPlayerPokemon('pikachu')">⚡ Pikachu</button>
+              <button class="btn-suggestion" (click)="selectPlayerPokemon('charizard')">🔥 Charizard</button>
+              <button class="btn-suggestion" (click)="selectPlayerPokemon('mewtwo')">🔮 Mewtwo</button>
+              <button class="btn-suggestion" (click)="selectPlayerPokemon('eevee')">🦊 Eevee</button>
+            </div>
+          </div>
+        </div>
+      } @else {
+        <!-- Battle Arena -->
+        <div class="battle-arena">
+          <!-- Player Card (Left) -->
+          <div class="battle-slot slot-player">
+            <h4 class="slot-title">YOUR CARD</h4>
+            <button class="btn-change-pokemon" (click)="clearPlayerPokemon()" [disabled]="answered()">
+              🔄 Change Pokémon
+            </button>
+            @if (playerPokemon(); as p) {
+              <div class="battle-card">
+                <span class="pokemon-name">{{ p.name | capitalize }}</span>
+                <div class="pokemon-image-box">
+                  <img [src]="p.sprites.other['official-artwork'].front_default" [alt]="p.name" />
+                </div>
+                <div class="stats-list">
+                  @for (s of playerStats(); track s.name) {
+                    <button
+                      class="stat-row-btn"
+                      [class.active]="selectedStatName() === s.name"
+                      [disabled]="answered()"
+                      (click)="duelStat(s.name)"
+                    >
+                      <span class="stat-name">{{ s.label }}</span>
+                      <span class="stat-value">{{ s.value }}</span>
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="vs-badge">VS</div>
+
+          <!-- AI Card (Right) -->
+          <div class="battle-slot slot-ai">
+            <h4 class="slot-title">AI CARD</h4>
+            <div class="ai-actions-placeholder"></div>
+            @if (aiPokemon(); as ai) {
+              <div class="card-flip-container">
+                <div class="card-flip-inner" [class.flipped]="answered()">
+                  <!-- AI Card Back Face -->
+                  <div class="battle-card card-back-face">
+                    <div class="pokeball-pattern">
+                      <div class="pokeball-top"></div>
+                      <div class="pokeball-center">
+                        <div class="pokeball-button"></div>
+                      </div>
+                      <div class="pokeball-bottom"></div>
+                    </div>
+                  </div>
+                  <!-- AI Card Front Face -->
+                  <div class="battle-card card-front-face">
+                    <span class="pokemon-name">{{ ai.name | capitalize }}</span>
+                    <div class="pokemon-image-box">
+                      <img [src]="ai.sprites.other['official-artwork'].front_default" [alt]="ai.name" />
+                    </div>
+                    <div class="stats-list">
+                      @for (s of aiStats(); track s.name) {
+                        <div
+                          class="stat-row-badge"
+                          [class.highlight]="selectedStatName() === s.name"
+                        >
+                          <span class="stat-name">{{ s.label }}</span>
+                          <span class="stat-value">{{ s.value }}</span>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Battle Interaction & Results -->
+        <div class="feedback-box" [class.unanswered]="!answered()" [class.victory]="answered() && resultStatus() === 'victory'" [class.defeat]="answered() && resultStatus() === 'defeat'" [class.draw]="answered() && resultStatus() === 'draw'">
+          @if (!answered()) {
+            <p class="feedback-instruction">Choose one of your Pokémon's stats to start the duel!</p>
+          } @else {
+            <h3 class="feedback-title">
+              @if (resultStatus() === 'victory') {
+                <span class="text-victory">🏆 Victory!</span>
+              } @else if (resultStatus() === 'defeat') {
+                <span class="text-defeat">💀 Defeat!</span>
+              } @else {
+                <span class="text-draw">⚖️ Draw!</span>
+              }
+            </h3>
+
+            <p class="feedback-text">
+              @if (playerPokemon(); as p) {
+                @if (aiPokemon(); as ai) {
+                  Your <strong>{{ p.name | capitalize }}</strong>
+                  ({{ playerStats().find((s) => s.name === selectedStatName())?.value }})
+                  {{ resultStatus() === 'victory' ? 'outperformed' : resultStatus() === 'defeat' ? 'was beaten by' : 'tied with' }}
+                  AI's <strong>{{ ai.name | capitalize }}</strong>
+                  ({{ aiStats().find((s) => s.name === selectedStatName())?.value }})
+                  in <strong>{{ selectedStatName() | uppercase }}</strong>!
+                }
+              }
+            </p>
+
+            <div class="actions-area">
+              <button class="btn-next" (click)="startNewDuel()">
+                Draw Next Cards ➜
+              </button>
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+</div>

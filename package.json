@@ -1,6 +1,6 @@
 {
   "name": "pokeapi",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "PokeAPI Explorer — Angular SPA para navegar la Pokédex completa usando la PokéAPI v2.",
   "author": "Samuel <samuciocan@gmail.com>",
   "license": "CC-BY-NC-ND-4.0",

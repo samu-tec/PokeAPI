@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 /**
- * Página 404. Se renderiza para cualquier ruta no reconocida (wildcard `**` en {@link routes}).
- * Muestra una imagen y un enlace para volver al listado de Pokémon.
+ * 404 Page. Rendered for any unrecognized route (wildcard `**` in {@link routes}).
+ * Displays a fallback image and a link to return to the Pokémon list.
  */
 @Component({
   selector: 'app-not-found',

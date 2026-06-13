@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 /**
- * Spinner de carga: una Pokéball animada renderizada íntegramente con CSS.
- * Sin estado ni inputs; basta con incluir `<app-loader />` mientras `loading` sea `true`.
+ * Loading spinner: an animated Pokéball rendered entirely with CSS.
+ * Stateless and has no inputs; simply include `<app-loader />` while `loading` is `true`.
  */
 @Component({
   selector: 'app-loader',

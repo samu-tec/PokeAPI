@@ -1,22 +1,25 @@
 # PokeAPI Explorer
 
+## Probando Angular en clase con la empresa Coderty
+
+Este proyecto comenzó originalmente como una práctica de clase para aprender Angular en colaboración con la empresa **Coderty**, y posteriormente ha sido expandido con funcionalidades avanzadas y minijuegos interactivos.
+
 [![Angular](https://img.shields.io/badge/Angular-21-DD0031?logo=angular&logoColor=white)](https://angular.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![RxJS](https://img.shields.io/badge/RxJS-7.8-B7178C?logo=reactivex&logoColor=white)](https://rxjs.dev)
 [![License: CC BY-NC-ND 4.0](https://img.shields.io/badge/License-CC%20BY--NC--ND%204.0-lightgrey.svg)](./LICENSE)
 [![Deploy](https://img.shields.io/badge/deploy-GitHub%20Pages-222?logo=github)](https://samu-tec.github.io/PokeAPI)
 
-Aplicación Angular para explorar la Pokédex completa usando la [PokéAPI](https://pokeapi.co/).
+Aplicación Angular moderna para explorar la Pokédex completa y jugar minijuegos interactivos usando la [PokéAPI](https://pokeapi.co/).
 
 > 🔗 **Demo en vivo:** [samu-tec.github.io/PokeAPI](https://samu-tec.github.io/PokeAPI)
-
-> **Origen:** Este proyecto comenzó como una práctica en clase con la empresa **[Coderty](https://coderty.com)**, con el objetivo de aprender Angular trabajando con APIs reales. Desde entonces ha evolucionado con nuevas funcionalidades, mejoras de UX y una arquitectura más completa.
 
 ---
 
 ## Índice
 
-- [Funcionalidades](#funcionalidades)
+- [Funcionalidades principales](#funcionalidades-principales)
+- [Minijuegos incluidos](#minijuegos-incluidos)
 - [Estructura del proyecto](#estructura-del-proyecto)
 - [Cómo ejecutar localmente](#cómo-ejecutar-localmente)
 - [Scripts disponibles](#scripts-disponibles)
@@ -27,40 +30,62 @@ Aplicación Angular para explorar la Pokédex completa usando la [PokéAPI](http
 
 ---
 
-## Funcionalidades
+## Funcionalidades principales
 
-- 🗺️ **Filtrado por región** — Explora los Pokémon de cada generación: Kanto, Johto, Hoenn, Sinnoh, Unova, Kalos, Alola, Galar y Paldea. Los datos se cargan bajo demanda y se cachean por sesión para minimizar las peticiones a la API.
-- 🔄 **Paginación con memoria** — Al volver desde el detalle de un Pokémon, la aplicación recupera exactamente la página en la que estabas. La URL refleja el estado (ej. `/pokemons?offset=20`).
-- 📋 **Tarjetas de detalle mejoradas** — Cada Pokémon muestra sus tipos (con colores oficiales), estadísticas base con barras de progreso, habilidades y datos de altura/peso correctamente formateados.
-- 📱 **Diseño responsive** — Adaptado para móvil y escritorio. Las tarjetas se redimensionan en pantallas pequeñas y el giro de la carta funciona con tap en dispositivos táctiles.
-- ⬆️ **Botón de subir** — Aparece automáticamente al hacer scroll, especialmente útil al explorar regiones con muchos Pokémon.
-- 🎨 **Tema claro** — Fondo degradado crema/azul claro en lugar del negro original, manteniendo los colores amarillo y azul de la Pokédex.
-- ⚡ **Caché de peticiones** — Los detalles individuales y las listas de región se cachean con `shareReplay(1)`, evitando peticiones duplicadas a la API.
-- 🧹 **URLs limpias** — Rutas en minúsculas y descriptivas (ej. `/pokemons`, `/pokemon/pikachu`).
+- 🗺️ **Filtrado por región** — Explora Pokémon por generaciones: Kanto, Johto, Hoenn, Sinnoh, Unova, Kalos, Alola, Galar y Paldea.
+- ⚡ **Filtro Avanzado Multitipo** — Selecciona uno o varios tipos elementales en paralelo para filtrar el catálogo completo (con sincronización en la URL).
+- 📋 **Tarjetas de Detalle e Historia Evolutiva** — Ficha completa con habilidades, tipo, peso/altura y la línea evolutiva completa con enlaces directos para navegar entre ellos.
+- 🎨 **Estilo Moderno e Interactivo** — Tarjetas con efecto de giro 3D en hover (y soporte de tap en dispositivos móviles).
+- 💾 **Caché Eficiente** — Uso de `shareReplay(1)` en servicios para que las llamadas repetidas a la API se resuelvan instantáneamente en memoria.
+
+---
+
+## Minijuegos incluidos
+
+Ubicados bajo la ruta `/mini-games`, cada juego cuenta con una interfaz adaptada a móvil y escritorio:
+
+- 👤 **Who's That Pokémon? (Trivia)**: Adivina el Pokémon oculto detrás de la silueta oscura seleccionando entre 4 opciones.
+- 🃏 **Memory Match**: Encuentra las parejas correspondientes a los 4 Pokémon en una cuadrícula persistente de 8 cartas que no se oculta al ganar.
+- ⚡ **Type Quiz**: Identifica el tipo elemental primario del Pokémon en pantalla.
+- 🔊 **Cry Trainer**: Escucha el grito del Pokémon y adivina a quién pertenece.
+- ⚖️ **Higher or Lower**: Compara el peso de dos Pokémon y adivina si el segundo es más pesado o ligero. Los botones de decisión permanecen visibles y deshabilitados después de responder.
+- ⚔️ **Stats Battle**: Busca y selecciona cualquier Pokémon de Kanto como tu luchador, elige su mejor estadística (HP, ATK, DEF, SPD) y enfréntate en un duelo contra la carta oculta de la Inteligencia Artificial.
 
 ---
 
 ## Estructura del proyecto
 
+El código sigue una arquitectura limpia orientada a componentes modulares e inyección de dependencias en Angular:
+
 ```
 src/app/
 ├── core/
 │   └── services/
-│       └── pokemon.service.ts          # HTTP + caché + constante REGIONS
+│       ├── pokemon.service.ts          # Gestión HTTP, Caché y persistencia de scroll
+│       ├── mini-games.service.ts       # Puntuación global y racha de aciertos
+│       └── team-builder.service.ts     # Lógica del equipo de 6 y localStorage
 ├── features/
-│   ├── pokemon-list/                   # Vista principal: listado, filtros, paginación
-│   └── pokemon-detail/                 # Vista de detalle: stats, tipos, habilidades
+│   ├── pokemon-list/                   # Lista principal, filtros por tipo/región y comparador
+│   ├── pokemon-detail/                 # Ficha de detalle, evolución y sonido
+│   └── mini-games/                     # Módulo de minijuegos
+│       ├── dashboard/                  # Panel de selección de juegos
+│       ├── cry-trainer/                # Minijuego de gritos
+│       ├── higher-lower/               # Minijuego de pesos (mayor/menor)
+│       ├── memory/                     # Juego de encontrar parejas
+│       ├── stats-battle/               # Duelo de estadísticas vs IA (con buscador de luchador)
+│       ├── trivia/                     # Adivinar siluetas de Pokémon
+│       └── type-quiz/                  # Adivinar tipo de Pokémon
 ├── shared/
 │   ├── components/
-│   │   ├── pokemon-card/               # Tarjeta con animación de giro 3D
-│   │   ├── paginator/                  # Botones de navegación de páginas
-│   │   └── loader/                     # Spinner de carga (Pokéball animada)
+│   │   ├── pokemon-card/               # Tarjeta giratoria 3D interactiva
+│   │   └── loader/                     # Spinner de Pokéball animada en CSS puro
 │   └── pipes/
-│       └── capitalize.pipe.ts          # Capitaliza la primera letra
-├── not-found/                          # Página 404
-├── app.component.ts                    # Componente raíz (logo + outlet)
-├── app.config.ts                       # Providers (Router, HTTP, Animations)
-└── app.routes.ts                       # Rutas (lazy loading)
+│       └── capitalize.pipe.ts          # Limpia guiones y capitaliza textos
+├── not-found/                          # Vista para error 404 (Not Found)
+├── app.component.html                  # Plantilla raíz con el logo y el menú
+├── app.component.ts                    # Componente raíz y control del menú de navegación
+├── app.config.ts                       # Configuración de proveedores globales
+└── app.routes.ts                       # Definición de rutas y lazy loading
 ```
 
 ---
@@ -94,57 +119,48 @@ src/app/
 | Comando | Descripción |
 |---|---|
 | `npm start` | Servidor de desarrollo en `localhost:4200` con recarga en caliente. |
-| `npm run build` | Compila la aplicación a `dist/poke-api/` para producción. |
-| `npm run watch` | Compilación continua en modo development (rebuild ante cambios). |
-| `npm test` | Ejecuta los tests con Karma + Jasmine. |
-| `npm run ng -- <comando>` | Pasa cualquier comando directamente al Angular CLI. |
+| `npm run build` | Compila la aplicación en la carpeta `dist/poke-api/` optimizada para producción. |
+| `npm run watch` | Compilación continua en modo desarrollo (recompila al detectar cambios). |
+| `npm test` | Ejecuta las pruebas unitarias con Karma + Jasmine. |
+| `npm run ng -- <comando>` | Permite ejecutar cualquier comando directamente a través del Angular CLI. |
 
 ---
 
 ## Despliegue
 
-El despliegue a [GitHub Pages](https://samu-tec.github.io/PokeAPI) es **automático**. El workflow [`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml) se ejecuta en cada push a `main` y:
+El despliegue a [GitHub Pages](https://samu-tec.github.io/PokeAPI) está automatizado mediante GitHub Actions. El flujo de trabajo [`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml) se ejecuta con cada push a la rama `main` y realiza los siguientes pasos:
 
-1. Instala dependencias con `npm ci`.
-2. Compila con `npm run build -- --base-href /PokeAPI/`.
-3. Copia `index.html` como `404.html` (necesario para que el router de Angular funcione en GitHub Pages).
-4. Sube el artefacto y despliega a Pages.
-
-No requiere intervención manual.
+1. Instala las dependencias del proyecto con `npm ci`.
+2. Compila la aplicación de producción usando `npm run build -- --base-href /PokeAPI/`.
+3. Duplica `index.html` a `404.html` para dar soporte a las rutas internas en el hosting estático de Pages.
+4. Despliega los archivos automáticamente a la rama de hosting.
 
 ---
 
 ## Stack tecnológico
 
-| Tecnología | Versión |
-|---|---|
-| Angular | 21.x |
-| TypeScript | 5.9.x |
-| RxJS | 7.8.x |
-| Zone.js | 0.15.x |
-| PokéAPI | v2 |
-| Node.js (CI) | 22 |
+- **Angular**: v21.x (Standalone Components, Signals, Computed properties, DestroyRef).
+- **TypeScript**: v5.9.x
+- **RxJS**: v7.8.x
+- **Zone.js**: v0.15.x
+- **PokéAPI**: v2
+- **Node.js (Entorno)**: v22.x
 
 ---
 
 ## Créditos
 
-Datos y sprites obtenidos de [**PokéAPI**](https://pokeapi.co/), un servicio gratuito y abierto mantenido por la comunidad. Por favor, respeta su [política de uso justo](https://pokeapi.co/docs/v2#fairuse) si reutilizas la API.
-
-Pokémon y todos los nombres relacionados son marcas registradas de Nintendo, Game Freak y The Pokémon Company. Este proyecto es una aplicación de aprendizaje sin fines de lucro y no está afiliado oficialmente a ninguna de esas entidades.
+* Los datos, descripciones oficiales y sprites son obtenidos directamente de la fantástica iniciativa comunitaria [**PokéAPI**](https://pokeapi.co/).
+* Pokémon y todas las marcas e ilustraciones relacionadas son marcas registradas de Nintendo, Game Freak y The Pokémon Company. Esta aplicación se ha desarrollado con fines educativos y de aprendizaje escolar sin ánimo de lucro.
 
 ---
 
 ## Licencia
 
-Este proyecto está licenciado bajo **Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)** — ver el archivo [LICENSE](./LICENSE) para el texto completo.
+Este proyecto está bajo la licencia **Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)**. Puedes consultar las condiciones de uso detalladas en el archivo [LICENSE](./LICENSE).
 
-**Resumen** (no sustituye al texto legal):
+* **Permitido**: Visualizar el código de forma educativa y compartirlo referenciando al autor original.
+* **Prohibido**: Distribuir versiones derivadas o realizar modificaciones públicas del proyecto, así como cualquier uso comercial de este material.
 
-- ✅ **Puedes** ver el código y compartirlo con atribución al autor.
-- ❌ **No puedes** modificarlo ni distribuir versiones derivadas.
-- ❌ **No puedes** usarlo con fines comerciales.
-
-[![CC BY-NC-ND 4.0](https://licensebuttons.net/l/by-nc-nd/4.0/88x31.png)](https://creativecommons.org/licenses/by-nc-nd/4.0/)
-
-Copyright © 2026 [Samuel](https://github.com/samu-tec).
+---
+Copyright © 2026 [Samuel](https://github.com/samu-tec). — Versión 3.0.0

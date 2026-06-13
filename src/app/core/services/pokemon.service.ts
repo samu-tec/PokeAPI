@@ -3,93 +3,103 @@ import { inject, Injectable } from '@angular/core';
 import { Observable, shareReplay } from 'rxjs';
 
 /**
- * Item resumido devuelto por los endpoints de listado de la PokéAPI.
- * Contiene únicamente el nombre y la URL de detalle del Pokémon.
+ * Summarized item returned by PokéAPI list endpoints.
+ * Contains only the name and absolute detail URL of the Pokémon.
  */
 export interface PokemonListItem {
-  /** Nombre del Pokémon en minúsculas (ej. `"pikachu"`). */
+  /** Pokémon name in lowercase (e.g., `"pikachu"`). */
   name: string;
-  /** URL absoluta al endpoint de detalle (ej. `https://pokeapi.co/api/v2/pokemon/25/`). */
+  /** Absolute URL to the detail endpoint (e.g., `https://pokeapi.co/api/v2/pokemon/25/`). */
   url: string;
 }
 
 /**
- * Respuesta paginada del endpoint `/pokemon` de la PokéAPI.
+ * Paged response from the PokéAPI `/pokemon` endpoint.
  */
 export interface PokemonListResponse {
-  /** Total de Pokémon existentes en la API. */
+  /** Total number of existing Pokémon in the API. */
   count: number;
-  /** URL absoluta a la siguiente página, o `null` si es la última. */
+  /** URL to the next page, or `null` if it is the last page. */
   next: string | null;
-  /** URL absoluta a la página anterior, o `null` si es la primera. */
+  /** URL to the previous page, or `null` if it is the first page. */
   previous: string | null;
-  /** Pokémon contenidos en la página actual. */
+  /** List of Pokémon items in the current page. */
   results: PokemonListItem[];
 }
 
 /**
- * Estadística base individual (HP, ataque, defensa, etc.).
+ * Individual base statistic (HP, attack, defense, etc.).
  */
 export interface PokemonStat {
-  /** Valor numérico base de la estadística (rango típico 1-255). */
+  /** Numeric value of the base stat (typical range: 1-255). */
   base_stat: number;
-  /** Metadatos de la estadística; `stat.name` es el identificador (ej. `"speed"`). */
+  /** Stat metadata; `stat.name` is the identifier (e.g., `"speed"`). */
   stat: { name: string };
 }
 
 /**
- * Habilidad de un Pokémon.
+ * Pokémon ability.
  */
 export interface PokemonAbility {
-  /** Metadatos de la habilidad; `ability.name` es el identificador en kebab-case. */
+  /** Ability metadata; `ability.name` is the identifier in kebab-case. */
   ability: { name: string };
 }
 
 /**
- * Detalle completo de un Pokémon devuelto por `/pokemon/{id-o-nombre}`.
- * Solo se tipan los campos que la app realmente consume.
+ * Full details of a Pokémon returned by `/pokemon/{id-or-name}`.
+ * Only properties consumed by the application are typed.
  */
 export interface PokemonDetail {
-  /** ID numérico nacional del Pokémon. */
+  /** National numeric ID of the Pokémon. */
   id: number;
-  /** Nombre del Pokémon en minúsculas. */
+  /** Pokémon name in lowercase. */
   name: string;
-  /** Altura en decímetros (la app la convierte a metros con {@link PokemonDetailComponent.formatHeight}). */
+  /** Height in decimeters. */
   height: number;
-  /** Peso en hectogramos (la app lo convierte a kilogramos con {@link PokemonDetailComponent.formatWeight}). */
+  /** Weight in hectograms. */
   weight: number;
-  /** Experiencia base; puede ser `null` para Pokémon sin valor asignado. */
+  /** Base experience; may be `null` for Pokémon without an assigned value. */
   base_experience: number | null;
-  /** Sprites disponibles; la app prioriza el artwork oficial sobre el sprite por defecto. */
+  /** Available sprites; the application prioritizes official artwork over the default front sprite. */
   sprites: {
     front_default: string;
     other: { 'official-artwork': { front_default: string } };
   };
-  /** Estadísticas base del Pokémon. */
+  /** Base statistics of the Pokémon. */
   stats: PokemonStat[];
-  /** Habilidades del Pokémon. */
+  /** Pokémon abilities. */
   abilities: PokemonAbility[];
-  /** Tipos del Pokémon (uno o dos elementos). */
+  /** Pokémon types (one or two elements). */
   types: { type: { name: string } }[];
+  /** Pokémon vocalizations / sounds. */
+  cries?: {
+    latest: string;
+    legacy: string;
+  };
+  /** Pokémon species info. */
+  species: {
+    name: string;
+    url: string;
+  };
 }
 
 /**
- * Rango de IDs de una generación/región de Pokémon.
- * Define el slice del catálogo nacional que pertenece a esa región.
+ * Range of IDs for a Pokémon generation/region.
+ * Defines the slice of the national catalog belonging to that region.
  */
 export interface Region {
-  /** Nombre legible de la región (ej. `"Kanto"`). El valor `"All"` indica modo paginado global. */
+  /** Human-readable name of the region (e.g., `"Kanto"`). `"All"` indicates global infinite scroll mode. */
   name: string;
-  /** Offset (índice base 0) del primer Pokémon de la región. */
+  /** Offset (0-based index) of the first Pokémon of the region. */
   offset: number;
-  /** Número de Pokémon que pertenecen a la región. */
+  /** Number of Pokémon belonging to the region. */
   limit: number;
 }
 
 /**
- * Catálogo de regiones disponibles en el selector de la UI.
- * `All` es un caso especial que activa el modo paginado en lugar de cargar todo de golpe.
- * Los offsets/limits corresponden a las generaciones canónicas de Pokémon.
+ * Catalog of available regions in the UI selector.
+ * `All` is a special case that triggers infinite scroll.
+ * Offsets and limits correspond to canonical Pokémon generations.
  */
 export const REGIONS: Region[] = [
   { name: 'All',    offset: 0,   limit: 20  },
@@ -105,43 +115,48 @@ export const REGIONS: Region[] = [
 ];
 
 const API = 'https://pokeapi.co/api/v2';
-const PAGE_SIZE = 20;
 
 /**
- * Cliente HTTP para la PokéAPI v2 con caché en memoria por sesión.
+ * HTTP client for PokéAPI v2 with in-memory session caching.
  *
- * Mantiene dos cachés independientes:
- * - **detailCache**: detalle individual por ID/nombre (uno por Pokémon visitado).
- * - **regionCache**: listado completo por par `offset-limit` (uno por región filtrada).
+ * Maintains four caches:
+ * - **detailCache**: individual details by ID/name.
+ * - **regionCache**: complete list by offset-limit pairs.
+ * - **speciesCache**: species data by URL.
+ * - **evolutionCache**: evolution chain by URL.
+ * - **typeCache**: Pokémon names by elemental type.
  *
- * Ambas usan `shareReplay(1)` para multicast: la respuesta se cachea tras la primera
- * suscripción y se reproduce a los siguientes suscriptores sin volver a llamar a la red.
- * La paginación global (`getPage`) no se cachea porque cada cambio de offset es una URL distinta
- * y la navegación entre páginas suele ser lineal.
+ * All use `shareReplay(1)` for multicasting: responses are cached on the first subscription
+ * and replayed to subsequent subscribers without hitting the network again.
  */
 @Injectable({ providedIn: 'root' })
 export class PokemonService {
   private readonly http = inject(HttpClient);
   private readonly detailCache = new Map<string, Observable<PokemonDetail>>();
   private readonly regionCache = new Map<string, Observable<PokemonListResponse>>();
+  private readonly speciesCache = new Map<string, Observable<any>>();
+  private readonly evolutionCache = new Map<string, Observable<any>>();
+  private readonly typeCache = new Map<string, Observable<any>>();
+
+  // --- State preservation variables for PokemonListComponent ---
+  listScrollPosition = 0;
+  listVisibleCount = 40;
+  listSearchQuery = '';
+  allPokemonMasterList: PokemonListItem[] = [];
+  preservedPokemons: PokemonListItem[] = [];
+  preservedRegion: Region | null = null;
+  preservedTypes: string[] = [];
+  preservedNamesOfTypes: string[] = [];
+  preservedCompareList: string[] = [];
+  isTeamDrawerOpen = false;
+  isCompareModalOpen = false;
 
   /**
-   * Obtiene una página de Pokémon en modo paginación global (20 por página).
-   * No se cachea: usado por el listado "All" donde el usuario navega por offsets.
+   * Fetches the complete list of Pokémon for a specific region (uncut).
+   * Cached by offset-limit key so switching back to the same region doesn't trigger a new request.
    *
-   * @param offset Índice del primer Pokémon de la página (múltiplo de 20).
-   */
-  getPage(offset: number): Observable<PokemonListResponse> {
-    return this.http.get<PokemonListResponse>(`${API}/pokemon?offset=${offset}&limit=${PAGE_SIZE}`);
-  }
-
-  /**
-   * Obtiene el listado completo de Pokémon de una región concreta (sin paginar).
-   * El resultado se cachea por par `offset-limit` para que volver a la misma región
-   * no dispare otra petición.
-   *
-   * @param offset Offset del primer Pokémon de la región.
-   * @param limit  Cantidad de Pokémon a traer.
+   * @param offset Offset of the first Pokémon of the region.
+   * @param limit  Quantity of Pokémon to retrieve.
    */
   getPokemonByRegion(offset: number, limit: number): Observable<PokemonListResponse> {
     const key = `${offset}-${limit}`;
@@ -156,11 +171,10 @@ export class PokemonService {
   }
 
   /**
-   * Obtiene el detalle completo de un Pokémon por su identificador (ID numérico o nombre).
-   * El resultado se cachea por identificador, evitando peticiones duplicadas al revisitar
-   * el mismo Pokémon dentro de la sesión.
+   * Fetches full details of a Pokémon by ID or lowercase name.
+   * Cached locally to avoid duplicate requests when re-visiting details.
    *
-   * @param id ID numérico (`"25"`) o nombre en minúsculas (`"pikachu"`).
+   * @param id Numeric ID (e.g. `"25"`) or lowercase name (e.g. `"pikachu"`).
    */
   getPokemonDetail(id: string): Observable<PokemonDetail> {
     let cached = this.detailCache.get(id);
@@ -169,6 +183,46 @@ export class PokemonService {
         .get<PokemonDetail>(`${API}/pokemon/${id}`)
         .pipe(shareReplay(1));
       this.detailCache.set(id, cached);
+    }
+    return cached;
+  }
+
+  /**
+   * Fetches Pokémon species details from the given species URL.
+   * Result is cached locally.
+   */
+  getPokemonSpecies(url: string): Observable<any> {
+    let cached = this.speciesCache.get(url);
+    if (!cached) {
+      cached = this.http.get<any>(url).pipe(shareReplay(1));
+      this.speciesCache.set(url, cached);
+    }
+    return cached;
+  }
+
+  /**
+   * Fetches the evolution chain from the given evolution chain URL.
+   * Result is cached locally.
+   */
+  getEvolutionChain(url: string): Observable<any> {
+    let cached = this.evolutionCache.get(url);
+    if (!cached) {
+      cached = this.http.get<any>(url).pipe(shareReplay(1));
+      this.evolutionCache.set(url, cached);
+    }
+    return cached;
+  }
+
+  /**
+   * Fetches all Pokémon associated with a specific elemental type.
+   * Result is cached locally.
+   */
+  getPokemonByType(typeName: string): Observable<any> {
+    const lowerName = typeName.toLowerCase();
+    let cached = this.typeCache.get(lowerName);
+    if (!cached) {
+      cached = this.http.get<any>(`${API}/type/${lowerName}`).pipe(shareReplay(1));
+      this.typeCache.set(lowerName, cached);
     }
     return cached;
   }
